@@ -6,17 +6,21 @@ import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
-class MainActivity : AppCompatActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
+class MainActivity : AppCompatActivity(), TasksAdapter.onTaskClickListener {
 
-        val rvTasks = findViewById<RecyclerView>(R.id.rvTasks)
+    private lateinit var  rvTasks : RecyclerView
+    private lateinit var  tasks : ArrayList<Tasks>
+    private lateinit var  main_view : View
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
 
 
         super.onCreate(savedInstanceState)
@@ -27,12 +31,23 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        rvTasks = findViewById<RecyclerView>(R.id.rvTasks)
+        rvTasks.layoutManager = LinearLayoutManager(this)
+        main_view = findViewById<View>(R.id.main)
+
+        tasks = ArrayList<Tasks>()
+        val task_Adapter = TasksAdapter(tasks, this)
+        rvTasks.adapter = task_Adapter
+
         val fab = findViewById<FloatingActionButton>(R.id.fab_new_task)
 
         fab.setOnClickListener{
             val Add_view = layoutInflater.inflate(R.layout.new_task_dialog, null)
             showAlertDialog(Add_view)
         }
+
+
 
     }
 
@@ -54,12 +69,29 @@ class MainActivity : AppCompatActivity() {
     private fun AddNewTask(the_view: View) {
         val title = the_view.findViewById<EditText>(R.id.inp_title)
         val discription = the_view.findViewById<EditText>(R.id.inp_disc)
-        var main_view = findViewById<View>(R.id.main)
+
         if (title.text.isBlank() || discription.text.isBlank()){
 
             Snackbar.make(main_view, "Invalid input. Title or disctiption is empty!", Snackbar.LENGTH_LONG).show()
-
+            return
         }
+
+        val new_task = Tasks(title.text.toString(), discription.text.toString(), false)
+        tasks.add(new_task)
+        rvTasks.adapter?.notifyItemInserted(tasks.size -1)
+
+        Snackbar.make(main_view, "Task Added", Snackbar.LENGTH_LONG).show()
+
+
+    }
+
+    override fun onTaskClick(position: Int) {
+        if (tasks[position].isDone){
+            tasks[position].isDone = false
+        }else{
+            tasks[position].isDone = true
+        }
+        rvTasks.adapter?.notifyDataSetChanged()
     }
 
 
