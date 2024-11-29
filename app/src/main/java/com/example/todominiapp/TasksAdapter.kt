@@ -1,6 +1,7 @@
 package com.example.todominiapp
 
 import android.graphics.Color
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.View.OnLongClickListener
@@ -9,7 +10,7 @@ import android.widget.TextView
 import androidx.core.os.persistableBundleOf
 import androidx.recyclerview.widget.RecyclerView
 
-class TasksAdapter(val tasks: ArrayList<Tasks>, val listener: onTaskClickListener): RecyclerView.Adapter<TasksAdapter.ViewHolder>() {
+class TasksAdapter(val tasks: MutableList<Tasks>, val listener: onTaskClickListener): RecyclerView.Adapter<TasksAdapter.ViewHolder>() {
 
     var selectedItem  = -1
     interface onTaskClickListener{
@@ -29,8 +30,15 @@ class TasksAdapter(val tasks: ArrayList<Tasks>, val listener: onTaskClickListene
 
         if (tasks[position].isDone){
             holder.itemView.setBackgroundColor(Color.LTGRAY)
+
+            holder.title.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+            holder.disc.paintFlags = Paint.STRIKE_THRU_TEXT_FLAG
+
         }else{
             holder.itemView.setBackgroundColor(Color.WHITE)
+
+            holder.title.paintFlags = Paint.FAKE_BOLD_TEXT_FLAG
+            holder.disc.paintFlags = Paint.LINEAR_TEXT_FLAG
         }
 
         holder.itemView.setOnLongClickListener {
@@ -47,10 +55,7 @@ class TasksAdapter(val tasks: ArrayList<Tasks>, val listener: onTaskClickListene
 
     override fun getItemCount(): Int = tasks.size
 
-    fun removeItem(position: Int) {
-        tasks.removeAt(position)
-        notifyItemRemoved(position)
-    }
+
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val title = itemView.findViewById<TextView>(R.id.task_title)
